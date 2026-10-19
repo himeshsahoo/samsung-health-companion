@@ -1,27 +1,25 @@
-# 🫀 Samsung Health Companion & MCP Bridge
+# 🫀 Samsung Health Companion & Calorie Tracker
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![Android](https://img.shields.io/badge/Android-API%2029%2B-green.svg?style=flat&logo=android)](https://developer.android.com)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4.svg?style=flat&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
+[![Gemini AI](https://img.shields.io/badge/AI-Gemini%203.8%20Flash-4285F4.svg?style=flat&logo=google)](https://aistudio.google.com)
 [![Model Context Protocol](https://img.shields.io/badge/Protocol-MCP%202.x-black.svg?style=flat)](https://modelcontextprotocol.io)
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A privacy-focused Android companion application and **Model Context Protocol (MCP)** server that bridges your **Samsung Health** wearable vitals directly to AI assistants (Claude, Cursor, Codex, Antigravity) and offers deep on-device physiological metrics with full raw CSV data export.
+A privacy-focused Android companion application and **Model Context Protocol (MCP)** server that bridges your **Samsung Health** wearable vitals directly to AI assistants (Claude, Cursor, Codex, Antigravity) with an on-device **Gemini AI Calorie Tracker**, 7-Day Calorie Balance Dashboard, date-wise Food Diary, and raw CSV data export.
 
 ---
 
 ## 🌟 Key Features
 
-- **🛡️ 100% Read-Only & Privacy-First:** Interacts strictly via read-only scopes using the official Samsung Health Data SDK. No health permissions are requested until you explicitly tap connect.
-- **⚡ On-Device Physiological Metrics Engine:** Calculates Garmin-like metrics locally without sending raw health data to any proprietary cloud:
-  - **Body Battery** (Real-time dynamic energy state from sleep & activity)
-  - **Training Status & Load Ratio** (Acute vs Chronic Workload Ratio)
-  - **Recovery Time** (Dynamic recovery hours needed)
-  - **VO2 Max Estimation & HRV Status**
-- **🤖 Model Context Protocol (MCP) Server:** Exposes your live vitals (`get_live_vitals`, `get_health_summary`) as native MCP tools to Claude Desktop, Cursor, Antigravity, or other LLMs over stdio.
-- **📦 Comprehensive Raw Data Exporter:** One-tap export to a structured `.zip` containing organized CSVs covering heart rate, sleep stages, second-by-second workout HR, GPS routes, SpO2, blood pressure, glucose, body composition, and temperature.
-- **🔄 Live & Background Cloud Sync:** Push health summaries to your personal MCP endpoint via manual trigger or background sync workers (`WorkManager`).
+- **📸 Gemini AI Food & Calorie Recognition:** Snap food photos directly in-app or type natural language meal descriptions (e.g. *"2 slices of pepperoni pizza and a coke"*) to receive instant AI estimation of meal type, calories, protein, carbs, and fat.
+- **📊 7-Day Calorie Balance Dashboard:** Date-wise visual bar chart comparing **Calories Intake** vs. **Calories Burned** over the last 7 days with daily averages and net deficit/surplus tracking.
+- **📅 Date-Wise Food Diary & History:** Complete food log with date navigation controls (`< Prev Day`, `Next Day >`, `Today`) allowing you to view and log food items for any past date.
+- **📷 In-App Camera Integration:** Capture meal photos directly using in-app camera controls (`FileProvider`) or pick from your device gallery.
+- **🛡️ Privacy-First & On-Device Storage:** Health vitals and food diary history are stored locally in Room SQLite database.
+- **🤖 Model Context Protocol (MCP) Server:** Exposes live vitals (`get_live_vitals`, `get_health_summary`) as native MCP tools to Claude Desktop, Cursor, or other LLMs over stdio.
+- **📦 Raw Data Exporter:** One-tap export to a structured `.zip` containing organized CSVs covering heart rate, sleep stages, workout HR series, GPS routes, SpO2, blood pressure, glucose, body composition, and temperature.
 
 ---
 
@@ -31,7 +29,7 @@ A privacy-focused Android companion application and **Model Context Protocol (MC
 flowchart LR
     A["Samsung Galaxy Watch / Ring"] --> B["Samsung Health App"]
     B -->|"Health Data SDK (Read-Only)"| C["Android Companion App"]
-    C --> D[("Local Room Database<br/>+ Metrics Calculator")]
+    C --> D[("Local Room Database<br/>+ Gemini AI Estimator")]
     C -->|"One-Tap Export"| E["ZIP of Raw CSVs"]
     C -->|"HTTP POST /sync"| F["FastAPI Receiver :8080"]
     F --> G[("latest_health_data.json")]
@@ -46,11 +44,11 @@ flowchart LR
 ### Android Client
 - **Language:** Kotlin 2.0 (with KSP)
 - **UI:** Jetpack Compose + Material 3 Design
+- **AI Integration:** Google Gemini AI API (`gemini-3.8-flash`, `gemma-4-26b-a4b-it`)
 - **SDK:** Samsung Health Data SDK (`1.1.0`)
 - **Database:** Room Database (SQLite with Flow coroutine streams)
-- **Background Tasks:** AndroidX WorkManager
 - **Networking:** OkHttp 4 + Gson
-- **Architecture:** Clean Architecture (Use Cases, Repository Pattern, Coroutines/Flow)
+- **Camera & File Provider:** AndroidX Activity Contracts + FileProvider
 
 ### MCP Server & Ingestion Bridge
 - **Language:** Python 3.10+
@@ -59,29 +57,12 @@ flowchart LR
 
 ---
 
-## 📊 Supported Health Metrics
-
-| Metric | Resolution | Export Format |
-|---|---|---|
-| **Heart Rate** | Continuous / On-demand | `02_heart_rate.csv` |
-| **Sleep & Sleep Stages** | Awake, REM, Light, Deep + Sleep Score | `05_sleep.csv`, `06_sleep_stages.csv` |
-| **Workouts** | Distance, Pace, Calories, Power, Cadence | `11_workouts.csv` |
-| **Workout HR Series** | Second-by-second breakdown | `12_workout_hr.csv` |
-| **Workout GPS** | Latitude, Longitude, Altitude, Accuracy | `13_gps.csv` |
-| **Blood Oxygen (SpO2)** | Sleep & manual spot checks | `08_spo2.csv` |
-| **Body Composition** | Weight, BMI, Body Fat %, Muscle Mass, BMR | `10_body_composition.csv` |
-| **Blood Pressure** | Systolic, Diastolic, Pulse | `20_blood_pressure.csv` |
-| **Blood Glucose** | Blood sugar readings | `21_glucose.csv` |
-| **Skin / Core Temperature** | Temperature records | `22_temperature.csv` |
-| **Energy Score** | Daily readiness score | `19_energy.csv` |
-
----
-
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
 - Physical Samsung Galaxy smartphone running **Samsung Health 6.30.2+** *(Emulators do not support Samsung Health Data SDK)*
 - Android Studio Ladybug / Meerkat (or newer) with JDK 17+
+- Free Gemini API key from [Google AI Studio](https://aistudio.google.com)
 - Python 3.10+ (for the MCP server)
 
 ---
@@ -104,76 +85,19 @@ flowchart LR
 3. **Enable Developer Mode in Samsung Health on your phone:**
    - Open **Samsung Health** on your phone.
    - Go to **Settings > About Samsung Health**.
-   - Tap the **Version** number rapidly 10 times until the Developer Mode prompt appears.
-   - Turn **Developer Mode** ON.
+   - Tap **Developer mode (Samsung Health Data SDK)** and turn **Developer Mode ON**.
 
-4. **Build and Install:**
-   - Open the project in Android Studio.
-   - Sync Gradle and run the app on your physical device.
-   - Tap **Sync** to request read permissions and load your data.
-
----
-
-### 3. Setting Up the MCP Server
-
-The MCP server allows AI assistants (such as Claude Desktop) to inspect your vitals and answer questions about your health, recovery, and sleep.
-
-1. **Navigate to the server directory and set up a virtual environment:**
-   ```bash
-   cd mcp-server
-   python -m venv venv
-   # On Windows:
-   venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure environment variables:**
-   Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-   Set your secret token:
-   ```env
-   SYNC_AUTH_TOKEN=your_secure_bearer_token_here
-   RECEIVER_PORT=8080
-   RECEIVER_HOST=0.0.0.0
-   ```
-
-4. **Configure your AI Assistant (e.g., Claude Desktop):**
-   Add the server to your `claude_desktop_config.json`:
-   ```json
-   {
-     "mcpServers": {
-       "samsung-health": {
-         "command": "python",
-         "args": [
-           "/path/to/samsung-health-companion/mcp-server/health_mcp.py"
-         ],
-         "env": {
-           "SYNC_AUTH_TOKEN": "your_secure_bearer_token_here"
-         }
-       }
-     }
-   }
-   ```
-
-5. **Sync from the Android App:**
-   - In the app, configure your receiver endpoint: `http://<YOUR_COMPUTER_IP>:8080/sync` with token `your_secure_bearer_token_here`.
-   - Tap **Live ChatGPT Sync** to push the latest vitals to your MCP server!
+4. **Configure Gemini AI API Key:**
+   - Open **Food Diary & Calorie Tracker** in the app.
+   - Tap the key icon in the top app bar to save your free Gemini API key from [aistudio.google.com](https://aistudio.google.com).
 
 ---
 
 ## 🔒 Security & Privacy
 
-- **No Hardcoded Credentials:** Authentication tokens and endpoints are strictly configured through environment variables or secure app settings.
-- **Proprietary Binaries Excluded:** Official Samsung Health SDK `.aar` binaries and personal data cache files (`latest_health_data.json`) are deliberately excluded from version control via `.gitignore`.
-- **Local-First Processing:** Physiological metrics (Body Battery, Training Load, Recovery Hours) are computed on-device in Kotlin.
+- **No Hardcoded Credentials:** Authentication tokens and API keys are stored locally in secure device preferences.
+- **Proprietary Binaries Excluded:** Official Samsung Health SDK `.aar` binaries and personal data cache files are excluded from version control via `.gitignore`.
+- **Local-First Processing:** Food logs, macros, and physiological calculations are processed on-device.
 
 ---
 

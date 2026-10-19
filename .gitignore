@@ -1,0 +1,42 @@
+# Gradle & Build Artifacts
+.gradle/
+build/
+app/build/
+*.iml
+.idea/
+.kotlin/
+local.properties
+
+# Android artifacts
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Samsung Health Proprietary SDK binaries
+app/libs/*.aar
+*.aar
+/com/
+
+# Python / MCP Server
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.venv/
+venv/
+env/
+mcp-server/.env
+mcp-server/latest_health_data.json
+latest_health_data.json
+
+# OS & Temp
+.DS_Store
+Thumbs.db
+*.hprof
+*.log
